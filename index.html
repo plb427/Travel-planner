@@ -9,8 +9,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.8.0/Recharts.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 :root{
   --washi:#f0ebe0;--washi2:#e8e0d0;--ink:#2d2418;--ink-soft:#4a3f2f;
@@ -46,16 +44,20 @@ body{background:var(--outer);font-family:'Zen Maru Gothic',sans-serif;min-height
   z-index:400;display:flex;align-items:flex-start;justify-content:center;
   padding:max(16px,env(safe-area-inset-top)) 12px 16px;
   backdrop-filter:blur(3px);overflow-y:auto;
+  /* iOS keyboard: allow scrolling when keyboard appears */
+  -webkit-overflow-scrolling:touch;
 }
 .modal{
   background:var(--washi);
   border:1.5px solid var(--border);border-radius:6px;
-  /* KEY FIX: use vw math so modal never exceeds screen */
   width:min(440px, calc(100vw - 24px));
-  max-height:calc(100svh - 48px);
+  /* Don't use svh — breaks when keyboard appears on iOS */
+  max-height:none;
   overflow-y:auto;overflow-x:hidden;
   box-shadow:4px 4px 0 var(--ink);margin:0 auto;
   -webkit-overflow-scrolling:touch;flex-shrink:0;
+  /* Ensure inputs are always reachable when keyboard is open */
+  padding-bottom:env(keyboard-inset-height,0px);
 }
 .modal-header{padding:13px 15px 10px;border-bottom:2px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--washi);z-index:1}
 .modal-body{padding:15px 15px 20px;overflow-x:hidden}
@@ -269,7 +271,7 @@ body{background:var(--outer);font-family:'Zen Maru Gothic',sans-serif;min-height
 
 /* Map view */
 .map-container{height:320px;border-radius:4px;overflow:hidden;border:1.5px solid var(--border-soft);margin-bottom:12px;position:relative;z-index:1}
-.map-container .leaflet-container{height:100%;width:100%}
+
 /* Receipt scanner */
 .receipt-preview{width:100%;max-height:180px;object-fit:contain;border-radius:4px;border:1px solid var(--border-soft);display:block}
 
@@ -310,8 +312,8 @@ function L(key){ /* lookup helper: L('btn.save') */
 const LANGS = {
   zh: {
     appName:'旅行計劃', tagline:'昭和旅情 · 旅のしおり',
-    tabs:{行程:'行程',預約:'預約',記帳:'記帳',購物:'購物',準備:'準備',日記:'日記',設定:'設定'},
-    tabEmoji:{行程:'⛩',預約:'✈️',記帳:'💴',購物:'🛍',準備:'🧳',日記:'📖',設定:'⚙️'},
+    tabs:{行程:'行程',預約:'預約',記帳:'記帳',購物:'購物',準備:'準備',設定:'設定'},
+    tabEmoji:{行程:'⛩',預約:'✈️',記帳:'💴',購物:'🛍',準備:'🧳',設定:'⚙️'},
     home:{noTrips:'還沒有旅行計劃',hint:'點擊 ＋ 開始規劃你的旅程',newTrip:'新建旅行計劃'},
     btn:{save:'儲存',cancel:'取消',add:'新增',delete:'刪除',back:'← 返回',edit:'編輯'},
     fields:{name:'名稱',dest:'目的地',startDate:'出發日期',days:'天數',budget:'總預算',currency:'貨幣',notes:'備注',location:'地點',time:'時間',cat:'類別',duration:'停留時間(分鐘)'},
@@ -320,8 +322,8 @@ const LANGS = {
   },
   en: {
     appName:'Travel Planner', tagline:'Showa Journey · Travel Journal',
-    tabs:{行程:'Itinerary',預約:'Bookings',記帳:'Budget',購物:'Shopping',準備:'Packing',日記:'Journal',設定:'Settings'},
-    tabEmoji:{行程:'⛩',預約:'✈️',記帳:'💴',購物:'🛍',準備:'🧳',日記:'📖',設定:'⚙️'},
+    tabs:{行程:'Itinerary',預約:'Bookings',記帳:'Budget',購物:'Shopping',準備:'Packing',設定:'Settings'},
+    tabEmoji:{行程:'⛩',預約:'✈️',記帳:'💴',購物:'🛍',準備:'🧳',設定:'⚙️'},
     home:{noTrips:'No trips yet',hint:'Tap ＋ to plan your journey',newTrip:'New Trip'},
     btn:{save:'Save',cancel:'Cancel',add:'Add',delete:'Delete',back:'← Back',edit:'Edit'},
     fields:{name:'Name',dest:'Destination',startDate:'Departure Date',days:'Days',budget:'Budget',currency:'Currency',notes:'Notes',location:'Location',time:'Time',cat:'Category',duration:'Duration (min)'},
@@ -330,8 +332,8 @@ const LANGS = {
   },
   ja: {
     appName:'旅のしおり', tagline:'昭和旅情 · Travel Planner',
-    tabs:{行程:'旅程',預約:'予約',記帳:'家計簿',購物:'ショッピング',準備:'準備',日記:'日記',設定:'設定'},
-    tabEmoji:{行程:'⛩',預約:'✈️',記帳:'💴',購物:'🛍',準備:'🧳',日記:'📖',設定:'⚙️'},
+    tabs:{行程:'旅程',預約:'予約',記帳:'家計簿',購物:'ショッピング',準備:'準備',設定:'設定'},
+    tabEmoji:{行程:'⛩',預約:'✈️',記帳:'💴',購物:'🛍',準備:'🧳',設定:'⚙️'},
     home:{noTrips:'旅の計画がまだありません',hint:'＋ を押して旅を計画しよう',newTrip:'新しい旅'},
     btn:{save:'保存',cancel:'キャンセル',add:'追加',delete:'削除',back:'← 戻る',edit:'編集'},
     fields:{name:'名前',dest:'目的地',startDate:'出発日',days:'日数',budget:'予算',currency:'通貨',notes:'メモ',location:'場所',time:'時間',cat:'カテゴリ',duration:'滞在時間(分)'},
@@ -373,7 +375,52 @@ const CAT_IT=['景點','餐廳','交通','住宿','購物','其他'];
 const CAT_EX=['交通','住宿','餐飲','景點','購物','其他'];
 const CAT_SH=['食嘢','購物','體驗','藥妝','紀念品','其他'];
 const CAT_PR=['證件','日用品','衣物','電子產品','藥物','雜物'];
-const TIMEZONES=['HKT UTC+8','JST UTC+9','KST UTC+9','CST UTC+8','EST UTC-5','PST UTC-8','GMT UTC+0','IST UTC+5:30'];
+/* IANA timezone IDs — used for Intl.DateTimeFormat and proper offset calculation */
+
+/* Popular travel destinations for quick pick */
+const POPULAR_DESTS = [
+  {region:'🇯🇵 日本',cities:['東京','大阪','京都','福岡','北海道','沖繩','名古屋','廣島','奈良']},
+  {region:'🇰🇷 韓國',cities:['首爾','釜山','濟州']},
+  {region:'🇹🇼 台灣',cities:['台北','台中','高雄','台南']},
+  {region:'🇸🇬 東南亞',cities:['新加坡','曼谷','峇里島','河內','胡志明市','吉隆坡','馬尼拉']},
+  {region:'🇨🇳 中國',cities:['上海','北京','廣州','成都','杭州']},
+  {region:'🇬🇧 歐洲',cities:['倫敦','巴黎','羅馬','巴塞隆拿','阿姆斯特丹','柏林','布拉格','維也納']},
+  {region:'🇦🇺 大洋洲',cities:['悉尼','墨爾本','奧克蘭']},
+  {region:'🇺🇸 北美',cities:['紐約','洛杉磯','舊金山','多倫多','溫哥華']},
+  {region:'🌍 其他',cities:['杜拜','伊斯坦堡','開羅','摩洛哥','馬爾代夫']},
+];
+
+const TIMEZONES=[
+  {label:'🇭🇰 香港 HKT',iana:'Asia/Hong_Kong'},
+  {label:'🇯🇵 東京 JST',iana:'Asia/Tokyo'},
+  {label:'🇰🇷 首爾 KST',iana:'Asia/Seoul'},
+  {label:'🇹🇼 台北 CST',iana:'Asia/Taipei'},
+  {label:'🇸🇬 新加坡 SGT',iana:'Asia/Singapore'},
+  {label:'🇹🇭 曼谷 ICT',iana:'Asia/Bangkok'},
+  {label:'🇦🇺 悉尼 AEDT',iana:'Australia/Sydney'},
+  {label:'🇬🇧 倫敦 GMT',iana:'Europe/London'},
+  {label:'🇫🇷 巴黎 CET',iana:'Europe/Paris'},
+  {label:'🇺🇸 紐約 EST',iana:'America/New_York'},
+  {label:'🇺🇸 洛杉磯 PST',iana:'America/Los_Angeles'},
+  {label:'🇨🇦 多倫多 ET',iana:'America/Toronto'},
+  {label:'🇮🇳 孟買 IST',iana:'Asia/Kolkata'},
+  {label:'🇦🇪 杜拜 GST',iana:'Asia/Dubai'},
+];
+/* Auto-detect user's local IANA timezone */
+const LOCAL_TZ=Intl.DateTimeFormat().resolvedOptions().timeZone;
+function getOffsetMins(iana){
+  try{
+    const now=new Date();
+    const local=new Date(now.toLocaleString('en-US',{timeZone:iana}));
+    const utc=new Date(now.toLocaleString('en-US',{timeZone:'UTC'}));
+    return Math.round((local-utc)/60000);
+  }catch{return 0}
+}
+function fmtInTZ(date,iana){
+  return new Intl.DateTimeFormat('zh-HK',{
+    timeZone:iana,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
+  }).format(date);
+}
 const CAT_EMOJI={景點:'⛩',餐廳:'🍜',交通:'🚉',住宿:'🏨',購物:'🛍',其他:'📌',
   食嘢:'🍡',體驗:'🎌',藥妝:'💊',紀念品:'🎁',
   證件:'🪪',日用品:'🧴',衣物:'👘',電子產品:'📱',藥物:'💊',雜物:'📦',餐飲:'🍣'};
@@ -590,25 +637,40 @@ async function fetchWeather(city){
 }
 function wIcon(c){if(!c)return'☀️';if(c<3)return'☀️';if(c<50)return'⛅';if(c<70)return'🌧️';if(c<80)return'🌨️';return'⛈️'}
 
-/* ── Countdown ── */
+/* ── Countdown — with real timezone support ── */
 function Countdown({trip}){
   const[now,setNow]=useState(new Date());
-  const[tz,setTz]=useState('HKT UTC+8');
+  /* Default to saved trip timezone, else auto-detect device timezone */
+  const defaultTZ=()=>{
+    if(trip.destTz)return trip.destTz;
+    /* Try to guess destination timezone from trip name */
+    const dest=(trip.destination||'').toLowerCase();
+    const match=TIMEZONES.find(t=>dest.includes(t.label.split(' ')[1]?.toLowerCase()||'__'));
+    return match?match.iana:LOCAL_TZ;
+  };
+  const[destTz,setDestTz]=useState(defaultTZ);
   useEffect(()=>{const t=setInterval(()=>setNow(new Date()),1000);return()=>clearInterval(t)},[]);
-  const dep=new Date(trip.startDate),diff=Math.max(0,dep-now);
+
+  /* Compute departure in destination timezone */
+  const depDateStr=trip.startDate+'T00:00:00';
+  /* Parse departure as midnight in destination timezone */
+  const depInDestTZ=new Date(new Date(depDateStr).toLocaleString('en-US',{timeZone:destTz}));
+  const depUTC=new Date(trip.startDate+'T00:00:00Z');
+  /* Use UTC midnight of start date for comparison */
+  const dep=depUTC;
+  const diff=Math.max(0,dep-now);
   const d=Math.floor(diff/86400000),h=Math.floor(diff%86400000/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);
   const endDate=addDays(trip.startDate,(trip.duration||1)-1);
   const ac=trip.color||'#c4622d';
+
+
   return <div className="countdown-box" style={{'--cd-color':ac}}>
-    <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:11}}>
-      <div>
-        <div className="showa-title" style={{fontSize:15,fontWeight:700,color:'var(--ink)'}}>{trip.name}</div>
-        <div style={{fontSize:11,color:'var(--ink-soft)',opacity:.55,marginTop:3}}>📍 {trip.destination} · {fmtD(trip.startDate)}〜{fmtD(endDate)}</div>
-      </div>
-      <select style={{background:'rgba(255,255,255,.6)',border:'1px solid var(--border-soft)',borderRadius:3,color:'var(--ink-soft)',fontSize:10,padding:'3px 5px',fontFamily:'inherit',cursor:'pointer'}} value={tz} onChange={e=>setTz(e.target.value)}>
-        {TIMEZONES.map(t=><option key={t}>{t}</option>)}
-      </select>
+    <div style={{marginBottom:10}}>
+      <div className="showa-title" style={{fontSize:15,fontWeight:700,color:'var(--ink)'}}>{trip.name}</div>
+      <div style={{fontSize:11,color:'var(--ink-soft)',opacity:.55,marginTop:2}}>📍 {trip.destination} · {fmtD(trip.startDate)}〜{fmtD(endDate)}</div>
     </div>
+
+
     {diff<=0
       ?<div style={{textAlign:'center',fontSize:15,fontWeight:700,color:ac,letterSpacing:'.12em',padding:'4px 0'}}>✈️ 旅途進行中</div>
       :<div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:6}}>
@@ -621,24 +683,47 @@ function Countdown({trip}){
 
 /* ── AI helpers ── */
 async function callAI(prompt,maxTokens=2000){
-  const apiKey=localStorage.getItem('anthropic-key')||'';
-  /* Note: in a real deployment, never call Anthropic directly from client-side.
-     Use a backend proxy. This works here because the key never leaves the device
-     and is stored only in local storage. */
-  const resp=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:maxTokens,
-      messages:[{role:'user',content:prompt}]
-    })
-  });
-  if(resp.status===401)throw new Error('API Key 無效，請在設定頁面重新輸入 Anthropic Key');
-  if(resp.status===429)throw new Error('API 用量已達上限，請稍後再試');
-  if(!resp.ok)throw new Error('API 錯誤 '+resp.status);
+  const apiKey=(localStorage.getItem('anthropic-key')||'').trim();
+  if(!apiKey)throw new Error('❌ 未找到 API Key\n請到 ⚙️ 設定 → API 金鑰 輸入你的 Anthropic Key');
+  let resp;
+  try{
+    resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:maxTokens,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+  }catch(networkErr){
+    /* Network/CORS error — give actionable instructions */
+    throw new Error(
+      '❌ 網路連線錯誤 (CORS)\n'+
+      '解決方法：\n'+
+      '1. 確認你已上傳到 GitHub Pages（不是在本地開啟檔案）\n'+
+      '2. 到 console.anthropic.com → Settings → Privacy\n'+
+      '   啟用「Allow browser-based API access」\n'+
+      '3. 確認 API Key 以 sk-ant- 開頭'
+    );
+  }
+  if(resp.status===401)throw new Error('❌ API Key 無效\n請到 ⚙️ 設定重新輸入正確的 Key（以 sk-ant- 開頭）');
+  if(resp.status===403){
+    let body='';try{body=JSON.stringify(await resp.json())}catch{}
+    throw new Error('❌ 存取被拒 (403)\n可能原因：未啟用 browser access\n→ console.anthropic.com → Settings → Privacy → 啟用瀏覽器存取\n'+body);
+  }
+  if(resp.status===429)throw new Error('❌ 超出用量限制，請稍後再試');
+  if(!resp.ok){
+    let msg='';try{const e=await resp.json();msg=e?.error?.message||JSON.stringify(e)}catch{}
+    throw new Error(`❌ API 錯誤 ${resp.status}\n${msg}`);
+  }
   const d=await resp.json();
-  return d.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
+  return d.content.map(b=>b.text||'').join('').replace(/\`\`\`json|\`\`\`/g,'').trim();
 }
 async function generateAIItinerary(trip){
   const raw=await callAI(`你是專業旅遊規劃師。為以下旅行生成每日行程，只返回JSON：
@@ -661,40 +746,34 @@ async function parseTextWithAI(text,type){
 
 /* ── Smart Input Panel ── */
 function SmartInputPanel({type,onFill}){
-  const[mode,setMode]=useState('manual');
+  /* Simplified: just AI paste — no quick-fill, no mode toggle */
   const[txt,setTxt]=useState('');
+  const[show,setShow]=useState(false);
   const[parsing,setParsing]=useState(false);
   const[err,setErr]=useState('');
-  const QUICK={
-    itinerary:[{name:'早餐',time:'08:00',cat:'餐廳',duration:45},{name:'午餐',time:'12:30',cat:'餐廳',duration:60},{name:'晚餐',time:'18:30',cat:'餐廳',duration:90},{name:'觀光',time:'10:00',cat:'景點',duration:120},{name:'Check-in',time:'15:00',cat:'住宿',duration:30}],
-    flight:[{name:'日本航空',flightNum:'JL',from:'HKG',to:'NRT'},{name:'國泰航空',flightNum:'CX',from:'HKG',to:'NRT'},{name:'香港快運',flightNum:'UO',from:'HKG',to:'TYO'}],
-    hotel:[{name:'',roomType:'標準雙人房'},{name:'',roomType:'豪華大床房'}],
-    restaurant:[{name:'',pax:'2'},{name:'',pax:'4'}],
-    expense:[{name:'交通費',cat:'交通'},{name:'餐飲',cat:'餐飲'},{name:'景點門票',cat:'景點'}],
-  };
   async function run(){
     if(!txt.trim())return;setParsing(true);setErr('');
-    try{onFill(await parseTextWithAI(txt,type));setMode('manual');setTxt('');}
+    try{onFill(await parseTextWithAI(txt,type));setShow(false);setTxt('');}
     catch{setErr('解析失敗，請手動輸入')}
     setParsing(false);
   }
-  return <div className="smart-panel">
-    <div style={{display:'flex',gap:5,marginBottom:8,flexWrap:'wrap'}}>
-      <span style={{fontSize:10,opacity:.5,alignSelf:'center'}}>輸入方式：</span>
-      {[['manual','✏️ 手動'],['paste','🤖 AI'],['quick','⚡ 快填']].map(([m,l])=>(
-        <button key={m} className={`smart-chip ${mode===m?'active':''}`} onClick={()=>setMode(m)}>{l}</button>
-      ))}
-    </div>
-    {mode==='paste'&&<div>
-      <textarea className="paste-area" value={txt} onChange={e=>setTxt(e.target.value)} placeholder="貼上確認郵件、截圖文字等，AI 自動提取…"/>
-      <div style={{display:'flex',gap:6,marginTop:6,flexWrap:'wrap'}}>
-        <button className="btn btn-indigo btn-sm" onClick={run} disabled={parsing||!txt.trim()}>{parsing&&<span className="ai-spin"/>}{parsing?'解析中…':'✨ AI 解析'}</button>
-        <button className="smart-chip" onClick={async()=>{try{setTxt(await navigator.clipboard.readText())}catch{setErr('請手動貼上')}}}>📋 剪貼簿</button>
+  return <div style={{marginBottom:12}}>
+    <button onClick={()=>setShow(s=>!s)}
+      style={{width:'100%',padding:'7px',border:'1.5px dashed var(--border)',borderRadius:5,
+        background:show?'var(--washi2)':'transparent',color:'var(--ink-soft)',
+        fontFamily:'inherit',fontSize:12,cursor:'pointer',textAlign:'center'}}>
+      🤖 從確認郵件 / 文字 AI 自動提取
+    </button>
+    {show&&<div style={{marginTop:7,background:'var(--washi2)',border:'1.5px solid var(--border-soft)',borderRadius:5,padding:'10px 11px'}}>
+      <textarea className="paste-area" value={txt} onChange={e=>setTxt(e.target.value)}
+        placeholder="貼上確認郵件、訂位短訊、截圖文字…AI 自動提取所有欄位"/>
+      <div style={{display:'flex',gap:6,marginTop:7,flexWrap:'wrap'}}>
+        <button className="btn btn-indigo btn-sm" onClick={run} disabled={parsing||!txt.trim()}>
+          {parsing&&<span className="ai-spin"/>}{parsing?'解析中…':'✨ AI 解析並填入'}
+        </button>
+        <button className="smart-chip" onClick={async()=>{try{setTxt(await navigator.clipboard.readText())}catch{setErr('請手動貼上')}}}>📋 貼上</button>
         {err&&<span style={{fontSize:11,color:'#8b2a2a'}}>{err}</span>}
       </div>
-    </div>}
-    {mode==='quick'&&<div style={{display:'flex',gap:5,flexWrap:'wrap'}}>
-      {(QUICK[type]||[]).map((q,i)=><button key={i} className="smart-chip" onClick={()=>{onFill(q);setMode('manual')}}>{q.name||q.roomType||`選項${i+1}`}</button>)}
     </div>}
   </div>
 }
@@ -704,11 +783,21 @@ function SmartInputPanel({type,onFill}){
 const MODE_SPEED=[5,35,25,40,45,25,800];   /* km/h: walk,metro,bus,taxi,car,ferry,plane */
 const MODE_ROAD=[1.25,1.15,1.28,1.35,1.4,1.1,1]; /* straight→road factor */
 async function geocodeNominatim(place){
-  try{
-    const d=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json&limit=1`,
-      {headers:{'Accept-Language':'zh,en'}}).then(r=>r.json());
-    if(d[0])return{lat:parseFloat(d[0].lat),lon:parseFloat(d[0].lon)};
-  }catch{}return null;
+  if(!place||!place.trim())return null;
+  const attempts=[
+    place.trim(),
+    /* If place doesn't already contain a comma (not a full address), try as-is first */
+  ];
+  for(const q of attempts){
+    try{
+      const d=await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1&addressdetails=0`,
+        {headers:{'Accept-Language':'zh,en,ja'}}
+      ).then(r=>r.json());
+      if(d&&d[0])return{lat:parseFloat(d[0].lat),lon:parseFloat(d[0].lon),name:d[0].display_name};
+    }catch{}
+  }
+  return null;
 }
 function haversineKm(a,b){
   const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180;
@@ -717,11 +806,18 @@ function haversineKm(a,b){
 }
 async function fetchTravelTime(origin,dest,modeIdx,cityHint=''){
   if(!origin||!dest)return null;
-  if(modeIdx===6)return null; /* plane — not useful */
+  if(modeIdx===6)return null; /* plane */
   try{
-    /* Append city hint for better accuracy on short/ambiguous names */
-    const hint=cityHint?' '+cityHint:'';
-    const[a,b]=await Promise.all([geocodeNominatim(origin+hint),geocodeNominatim(dest+hint)]);
+    /* Only append city hint if the location string doesn't already contain it */
+    function withCity(loc){
+      const l=loc.toLowerCase(),h=(cityHint||'').toLowerCase();
+      if(!cityHint||l.includes(h))return loc;
+      return loc+', '+cityHint;
+    }
+    const[a,b]=await Promise.all([
+      geocodeNominatim(withCity(origin)),
+      geocodeNominatim(withCity(dest))
+    ]);
     if(!a||!b)return null;
     const km=haversineKm(a,b)*MODE_ROAD[modeIdx];
     const mins=Math.round(km/(MODE_SPEED[modeIdx]||30)*60);
@@ -729,7 +825,7 @@ async function fetchTravelTime(origin,dest,modeIdx,cityHint=''){
     const h=Math.floor(mins/60),m=mins%60;
     const text=h>0?`約${h}時${m?m+'分':''}`:mins?`約${mins}分`:'<1分';
     return{text,mins,dist,estimated:true};
-  }catch{return null}
+  }catch(e){return null}
 }
 
 /* ── #16 Drag-to-reorder ── */
@@ -755,99 +851,153 @@ function minsToTime(m){if(m===null||m===undefined)return'';const hh=Math.floor(m
 
 
 /* ════════════════════════════════════════
-   MAP VIEW — Leaflet + OpenStreetMap
+   MAP VIEW — Google Maps embed (free, no API key)
+   Uses search embed URL — shows real Google Maps tiles
 ════════════════════════════════════════ */
 function DayMapView({items,city,dayKey}){
-  const mapRef=useRef(null);
-  const mapInstanceRef=useRef(null);
-  const markersRef=useRef([]);
-  const[status,setStatus]=useState('loading'); /* loading|ok|empty|error */
-  const[found,setFound]=useState(0);
-  const[total,setTotal]=useState(0);
+  const withLoc=items.filter(it=>it.location&&it.location.trim());
+  const[coords,setCoords]=useState([]); /* [{lat,lon,item,idx}] */
+  const[loading,setLoading]=useState(true);
+  const[cityCoord,setCityCoord]=useState(null);
 
+  /* Geocode all locations on mount */
   useEffect(()=>{
-    if(!mapRef.current)return;
-    /* Wait for Leaflet to load */
-    const tryInit=()=>{
-      if(!window.L){setTimeout(tryInit,200);return}
-      initMap();
-    };
-    tryInit();
-    return()=>{
-      /* Destroy map instance on unmount so remount works cleanly */
-      if(mapInstanceRef.current){
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current=null;
-      }
-    };
-  },[dayKey]); /* remount when day changes */
+    setLoading(true);setCoords([]);
+    async function geocodeAll(){
+      /* Geocode city first */
+      const cityRes=await geocodeNominatim(city).catch(()=>null);
+      if(cityRes)setCityCoord(cityRes);
 
-  function initMap(){
-    if(!mapRef.current||!window.L)return;
-    setStatus('loading');
+      const withL=items.filter(it=>it.location&&it.location.trim());
+      if(withL.length===0){setLoading(false);return}
 
-    /* Fresh map every time */
-    if(mapInstanceRef.current){mapInstanceRef.current.remove();mapInstanceRef.current=null}
-    const map=L.map(mapRef.current,{zoomControl:true,attributionControl:true});
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-      attribution:'© <a href="https://openstreetmap.org">OpenStreetMap</a>',maxZoom:19
-    }).addTo(map);
-    mapInstanceRef.current=map;
-    markersRef.current=[];
-
-    const withLoc=items.filter(it=>it.location&&it.location.trim());
-    if(withLoc.length===0){
-      setTotal(0);
-      /* Show city at least */
-      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`)
-        .then(r=>r.json()).then(d=>{
-          if(d[0]){map.setView([parseFloat(d[0].lat),parseFloat(d[0].lon)],12);setStatus('empty')}
-          else setStatus('empty');
-        }).catch(()=>setStatus('empty'));
-      return;
+      const results=await Promise.all(withL.map(async(it,idx)=>{
+        /* Smart city append — only if not already in the string */
+        const locQ=it.location.toLowerCase().includes((city||'').toLowerCase())?it.location:it.location+', '+city;
+        const r=await geocodeNominatim(locQ).catch(()=>null);
+        return r?{lat:r.lat,lon:r.lon,item:it,idx}:null;
+      }));
+      setCoords(results.filter(Boolean));
+      setLoading(false);
     }
+    geocodeAll();
+  },[dayKey]);
 
-    setTotal(withLoc.length);
-    const bounds=[];
-    let pending=withLoc.length, foundCount=0;
-
-    withLoc.forEach((it,i)=>{
-      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(it.location+' '+city)}&format=json&limit=1`,
-        {headers:{'Accept-Language':'zh,en'}})
-        .then(r=>r.json()).then(d=>{
-          if(d[0]){
-            const lat=parseFloat(d[0].lat),lon=parseFloat(d[0].lon);
-            bounds.push([lat,lon]);
-            foundCount++;
-            const cfg=CAT_CONFIG[it.cat]||CAT_CONFIG['其他'];
-            const icon=L.divIcon({
-              html:`<div style="background:${cfg.color};color:white;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.35);font-family:serif">${i+1}</div>`,
-              className:'',iconSize:[26,26],iconAnchor:[13,13]
-            });
-            const marker=L.marker([lat,lon],{icon}).addTo(map);
-            const tags=[it.mustEat?'🍽️必吃':'',it.mustBuy?'🛒必買':'',it.mustPhoto?'📸必拍':''].filter(Boolean).join(' ');
-            marker.bindPopup(`<div style="font-family:sans-serif;min-width:140px"><b>${i+1}. ${it.name}</b>${it.time?`<br>🕐 ${it.time}`:''}${tags?`<br>${tags}`:''}</div>`);
-            markersRef.current.push(marker);
-          }
-          pending--;
-          setFound(foundCount);
-          if(pending===0){
-            if(bounds.length===1)map.setView(bounds[0],15);
-            else if(bounds.length>1)map.fitBounds(bounds,{padding:[30,30]});
-            setStatus(bounds.length>0?'ok':'error');
-          }
-        }).catch(()=>{pending--;if(pending===0)setStatus(bounds.length>0?'ok':'error')});
-    });
+  /* Build static map image URL using OpenStreetMap tile stitching */
+  /* We use staticmap from openstreetmap.de which is free */
+  function buildStaticMapUrl(){
+    if(coords.length===0&&!cityCoord)return null;
+    const center=coords.length>0
+      ?{lat:coords.reduce((s,c)=>s+c.lat,0)/coords.length,lon:coords.reduce((s,c)=>s+c.lon,0)/coords.length}
+      :cityCoord;
+    const zoom=coords.length===0?12:coords.length===1?15:coords.length<4?13:11;
+    /* Use openstreetmap.org staticmap endpoint — free, no key */
+    const markers=coords.map((c,i)=>`marker=${c.lat},${c.lon}`).join('&');
+    return `https://staticmap.openstreetmap.de/staticmap.php?center=${center.lat},${center.lon}&zoom=${zoom}&size=400x280&${markers}`;
   }
 
+  /* Google Maps app URL for opening in app */
+  function buildGoogleUrl(){
+    if(withLoc.length===0)
+      return`https://maps.google.com/maps?q=${encodeURIComponent(city)}`;
+    if(withLoc.length===1){
+      const loc=withLoc[0].location;
+      const q=loc.toLowerCase().includes((city||'').toLowerCase())?loc:loc+', '+city;
+      return`https://maps.google.com/maps?q=${encodeURIComponent(q)}`;
+    }
+    /* Multi-stop: use directions URL */
+    const locs=withLoc.map(it=>{
+      const l=it.location;
+      return encodeURIComponent(l.toLowerCase().includes((city||'').toLowerCase())?l:l+', '+city);
+    });
+    return`https://www.google.com/maps/dir/${locs.join('/')}`;
+  }
+
+  const staticUrl=buildStaticMapUrl();
+
   return <div style={{marginBottom:12}}>
-    <div ref={mapRef} className="map-container" style={{opacity:status==='loading'?.6:1,transition:'opacity .3s'}}/>
-    {status==='loading'&&<div style={{textAlign:'center',fontSize:11,opacity:.5,marginTop:4}}>🗺️ 地圖載入中…</div>}
-    {status==='empty'&&<div style={{textAlign:'center',fontSize:11,opacity:.5,marginTop:4}}>景點尚未填寫地址，顯示城市中心</div>}
-    {status==='error'&&<div style={{textAlign:'center',fontSize:11,color:'var(--persimmon)',marginTop:4}}>⚠️ 找不到地址，請確認地址正確</div>}
-    {status==='ok'&&found<total&&<div style={{textAlign:'center',fontSize:11,color:'var(--gold)',marginTop:4}}>⚠️ {total-found} 個地址未能找到，請檢查拼寫</div>}
+    {/* Location chips */}
+    {withLoc.length>0&&<div style={{display:'flex',gap:5,overflowX:'auto',scrollbarWidth:'none',marginBottom:8,paddingBottom:2}}>
+      {withLoc.map((it,i)=>(
+        <a key={it.id||i}
+          href={`https://maps.google.com/?q=${encodeURIComponent(it.location+', '+city)}`}
+          target="_blank" rel="noreferrer" style={{textDecoration:'none',flexShrink:0}}>
+          <span style={{display:'inline-flex',alignItems:'center',gap:4,
+            background:'var(--paper)',border:'1.5px solid var(--border-soft)',
+            borderRadius:20,padding:'3px 10px',fontSize:11,color:'var(--indigo)',whiteSpace:'nowrap'}}>
+            <span style={{background:CAT_CONFIG[it.cat]?.color||'var(--persimmon)',color:'white',
+              width:16,height:16,borderRadius:'50%',display:'inline-flex',alignItems:'center',
+              justifyContent:'center',fontSize:9,fontWeight:700}}>{i+1}</span>
+            {it.name}
+          </span>
+        </a>
+      ))}
+    </div>}
+
+    {withLoc.length===0&&<div style={{background:'var(--washi2)',border:'1.5px solid var(--border-soft)',
+      borderRadius:6,padding:'9px 12px',marginBottom:8,fontSize:12,opacity:.6,textAlign:'center'}}>
+      景點尚未填寫地址，在地圖上找不到位置。請在編輯景點時填寫地址。
+    </div>}
+
+    {/* Static map image */}
+    <div style={{borderRadius:8,overflow:'hidden',border:'1.5px solid var(--border-soft)',
+      boxShadow:'var(--shadow-ink)',background:'var(--washi2)',position:'relative',
+      minHeight:220,display:'flex',alignItems:'center',justifyContent:'center'}}>
+      {loading&&<div style={{textAlign:'center',opacity:.4}}>
+        <div style={{fontSize:24,marginBottom:6}}>🗺️</div>
+        <div style={{fontSize:12}}>地圖載入中…</div>
+      </div>}
+      {!loading&&staticUrl&&<img
+        src={staticUrl}
+        alt="地圖"
+        style={{width:'100%',display:'block',objectFit:'cover'}}
+        onError={e=>{e.target.style.display='none';e.target.nextSibling.style.display='flex'}}
+      />}
+      {!loading&&staticUrl&&<div style={{display:'none',flexDirection:'column',alignItems:'center',
+        justifyContent:'center',padding:20,textAlign:'center',opacity:.5,minHeight:160}}>
+        <div style={{fontSize:24}}>🗺️</div>
+        <div style={{fontSize:12,marginTop:6}}>靜態地圖載入失敗</div>
+      </div>}
+      {!loading&&!staticUrl&&<div style={{textAlign:'center',opacity:.35,padding:24}}>
+        <div style={{fontSize:28}}>📍</div>
+        <div style={{fontSize:12,marginTop:6}}>無法取得地圖，請確認地址</div>
+      </div>}
+      {/* Numbered marker overlay legend */}
+      {!loading&&coords.length>0&&<div style={{
+        position:'absolute',top:8,right:8,
+        background:'rgba(255,255,255,.88)',
+        borderRadius:6,padding:'6px 8px',
+        boxShadow:'0 2px 8px rgba(0,0,0,.15)',
+        maxWidth:140,fontSize:10,lineHeight:1.7}}>
+        {coords.map((c,i)=>{
+          const cfg=CAT_CONFIG[c.item.cat]||CAT_CONFIG['其他'];
+          return <div key={i} style={{display:'flex',gap:5,alignItems:'center'}}>
+            <span style={{width:14,height:14,borderRadius:'50%',background:cfg.color,
+              color:'white',display:'inline-flex',alignItems:'center',justifyContent:'center',
+              fontSize:8,fontWeight:700,flexShrink:0}}>{c.idx+1}</span>
+            <span style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',
+              maxWidth:110,color:'var(--ink)'}}>{c.item.name}</span>
+          </div>
+        })}
+        {coords.length<withLoc.length&&<div style={{color:'var(--gold)',marginTop:2,fontSize:9}}>
+          ⚠️ {withLoc.length-coords.length} 個地址未能找到
+        </div>}
+      </div>}
+    </div>
+
+    {/* Action buttons */}
+    <div style={{marginTop:8,display:'flex',gap:7}}>
+      <a href={buildGoogleUrl()} target="_blank" rel="noreferrer" style={{textDecoration:'none',flex:1}}>
+        <button className="btn btn-primary" style={{width:'100%',fontSize:12,padding:'9px',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>
+          <span style={{fontSize:15}}>🗺️</span>
+          {withLoc.length>1?'在 Google Maps 開啟路線':'在 Google Maps 開啟'}
+        </button>
+      </a>
+    </div>
   </div>
 }
+
+
 
 /* ═══════════════════════════════════════════════
    TAB: ITINERARY
@@ -862,7 +1012,6 @@ function ItineraryTab({trip,setTrip}){
   const[aiMode,setAiMode]=useState(''); /* ''|'all'|'empty' */
   const[travelTimes,setTravelTimes]=useState({});
   const[fetchingTT,setFetchingTT]=useState({});
-  const[search,setSearch]=useState('');
   const[mapView,setMapView]=useState(false); /* hoisted from IIFE */
   const days=trip.days||[];
   const day=days[dayIdx]||{items:[]};
@@ -923,7 +1072,7 @@ function ItineraryTab({trip,setTrip}){
     setFetchingTT(p=>({...p,[pKey]:false}));
     if(r){setTravelTimes(p=>({...p,[pKey]:r}));
       const nd=[...days];nd[dayIdx].items=nd[dayIdx].items.map(x=>x.id===fromItem.id?{...x,travelTime:String(r.mins)}:x);updDays(nd);
-    }else showToast('無法取得路線，請確認地點及 API Key');
+    }else showToast('⚠️ 無法估算：請確認景點已填寫地址（如：新宿車站, 東京）');
   }
 
   /* #5 feasibility: compute expected time of each item */
@@ -938,18 +1087,6 @@ function ItineraryTab({trip,setTrip}){
     return result;
   },[day.items]);
 
-  /* #13 search results */
-  const searchResults=useMemo(()=>{
-    if(!search.trim())return[];
-    const q=search.toLowerCase();
-    const res=[];
-    days.forEach((d,di)=>(d.items||[]).forEach(it=>{
-      if(it.name?.toLowerCase().includes(q)||it.location?.toLowerCase().includes(q)||it.notes?.toLowerCase().includes(q))
-        res.push({...it,dayIdx:di,dayCity:d.city||trip.destination});
-    }));
-    return res;
-  },[search,days]);
-
   const dateForDay=i=>addDays(trip.startDate,i);
   /* No paid keys needed — travel time uses free Nominatim */
 
@@ -959,27 +1096,12 @@ function ItineraryTab({trip,setTrip}){
       <button className="btn btn-indigo" style={{flex:2,fontSize:11,padding:'6px 8px'}} onClick={()=>runAI('empty')} disabled={aiLoading}>
         {aiLoading&&aiMode==='empty'&&<span className="ai-spin"/>}✨ AI 填入空白天
       </button>
-      <button className="btn" style={{flex:1,fontSize:11,padding:'6px 8px'}} onClick={()=>runAI('all')} disabled={aiLoading}>
-        {aiLoading&&aiMode==='all'&&<span className="ai-spin"/>}全部重生成
-      </button>
+
 
     </div>
 
     {/* #13 Global search */}
-    <input className="search-bar" placeholder="🔍 搜尋行程、地點…" value={search} onChange={e=>setSearch(e.target.value)}/>
-    {search&&<div>
-      {searchResults.length===0&&<div style={{textAlign:'center',opacity:.4,fontSize:12,padding:'12px 0'}}>無結果</div>}
-      {searchResults.map(it=>(
-        <div key={it.id} className="item-card" onClick={()=>{setDayIdx(it.dayIdx);setSearch('');setEditItem(it);setShowAdd(true)}}>
-          <div className="item-num" style={{background:trip.color||'#2d2418'}}>{CAT_EMOJI[it.cat]||'📌'}</div>
-          <div style={{flex:1}}>
-            <div style={{fontSize:13,fontWeight:600}}>{it.name}</div>
-            <div style={{fontSize:10,opacity:.5}}>Day {it.dayIdx+1} {it.dayCity} {it.time&&`· ${it.time}`}</div>
-          </div>
-        </div>
-      ))}
-      <div className="showa-divider"/>
-    </div>}
+
 
     {/* Day tabs with scroll fade — #3 */}
     <div className="day-tabs-wrap">
@@ -1150,22 +1272,27 @@ function ItineraryTab({trip,setTrip}){
               </div>}
             </div>
 
-            {/* Transport connector between stops */}
+            {/* Transport connector — compact single row */}
             {i<arr.length-1&&(
-              <div style={{display:'flex',flexDirection:'column',alignItems:'center',position:'relative',padding:'2px 0'}}>
+              <div style={{position:'relative',margin:'2px 0'}}>
                 <div style={{position:'absolute',left:'50%',top:0,bottom:0,width:1,background:'var(--border-soft)',transform:'translateX(-50%)',zIndex:0}}/>
-                <button className="transport-btn" onClick={()=>toggleTransport(dayIdx,i)} style={{position:'relative',zIndex:1,background:'var(--paper)'}}>
-                  {TRANSPORT_ICONS[item.transport||0]}
-                </button>
-                <div style={{position:'relative',zIndex:1,display:'flex',gap:4,alignItems:'center',marginTop:-2,marginBottom:3}}>
-                  {ttData&&<span style={{fontSize:10,color:'var(--indigo)',background:'rgba(46,74,122,.08)',padding:'2px 7px',borderRadius:10,border:'1px solid rgba(46,74,122,.2)'}}>🗺 {ttData.text} · {ttData.dist}{ttData.estimated?' ✱':''}</span>}
-                  {!ttData&&item.travelTime&&<span style={{fontSize:10,opacity:.4,padding:'1px 6px',background:'var(--washi2)',borderRadius:10}}>{item.travelTime}分</span>}
+                <div style={{position:'relative',zIndex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:5,padding:'3px 0'}}>
+                  {/* Transport emoji button */}
+                  <button className="transport-btn" onClick={()=>toggleTransport(dayIdx,i)}
+                    style={{width:28,height:28,background:'var(--paper)',flexShrink:0}}>
+                    {TRANSPORT_ICONS[item.transport||0]}
+                  </button>
+                  {/* Travel time result */}
+                  {ttData&&<span style={{fontSize:10,color:'var(--indigo)',background:'rgba(46,74,122,.08)',padding:'2px 7px',borderRadius:10,border:'1px solid rgba(46,74,122,.2)',whiteSpace:'nowrap'}}>
+                    {ttData.text} · {ttData.dist}
+                  </span>}
+                  {!ttData&&item.travelTime&&<span style={{fontSize:10,opacity:.4,padding:'1px 6px',background:'var(--washi2)',borderRadius:10,whiteSpace:'nowrap'}}>{item.travelTime}分</span>}
+                  {/* Estimate button — inline */}
                   <button onClick={()=>estimateTT(item,arr[i+1],item.transport||0)}
                     disabled={fetchingTT[pKey]}
-                    style={{background:'white',border:'1px solid var(--border-soft)',borderRadius:10,fontSize:9,padding:'2px 6px',cursor:'pointer',color:'var(--indigo)',fontFamily:'inherit'}}>
-                    {fetchingTT[pKey]?<span className="ai-spin" style={{width:8,height:8,borderWidth:1.5}}/>:'🗺️'}
-                    {fetchingTT[pKey]?'…':'估算'}
-                  </button>}
+                    style={{background:'var(--paper)',border:'1px solid var(--border-soft)',borderRadius:10,fontSize:9,padding:'2px 7px',cursor:'pointer',color:'var(--indigo)',fontFamily:'inherit',whiteSpace:'nowrap',flexShrink:0}}>
+                    {fetchingTT[pKey]?<span className="ai-spin" style={{width:8,height:8,borderWidth:1.5}}/>:'估算'}
+                  </button>
                 </div>
               </div>
             )}
@@ -1185,6 +1312,125 @@ function ItineraryTab({trip,setTrip}){
   </div>
 }
 
+
+
+/* ════════════════════════════════════════
+   GOOGLE MAPS LINK PARSER
+   Paste any Maps URL or place name → auto-fill everything
+════════════════════════════════════════ */
+
+/* Parse a Google Maps URL and extract useful info */
+function parseGoogleMapsUrl(url){
+  try{
+    /* Extract place name from /maps/place/NAME/@... */
+    const placeMatch=url.match(/maps\/place\/([^/@?]+)/);
+    const placeName=placeMatch?decodeURIComponent(placeMatch[1].replace(/\+/g,' ')):null;
+
+    /* Extract coordinates from @lat,lng,zoom or q=lat,lng */
+    const coordMatch=url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)||
+                     url.match(/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/)||
+                     url.match(/ll=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    const lat=coordMatch?parseFloat(coordMatch[1]):null;
+    const lng=coordMatch?parseFloat(coordMatch[2]):null;
+
+    /* Extract from search query */
+    const qMatch=url.match(/[?&]q=([^&]+)/);
+    const qParam=qMatch?decodeURIComponent(qMatch[1].replace(/\+/g,' ')):null;
+
+    return{placeName:placeName||qParam,lat,lng};
+  }catch{return{placeName:null,lat:null,lng:null}}
+}
+
+/* Reverse geocode coordinates to get address */
+async function reverseGeocode(lat,lng){
+  try{
+    const d=await fetch(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+      {headers:{'Accept-Language':'zh,en'}}
+    ).then(r=>r.json());
+    if(d&&d.display_name){
+      const parts=d.display_name.split(',');
+      return{
+        address:parts.slice(0,4).join(',').trim(),
+        name:d.namedetails?.name||d.name||parts[0].trim(),
+        full:d.display_name,
+      };
+    }
+  }catch{}
+  return null;
+}
+
+/* Use AI to enrich a place with category, description, tags */
+async function enrichPlaceWithAI(placeName,address,city){
+  try{
+    const raw=await callAI(
+      `你是旅遊達人。根據以下地點資訊，判斷並填寫行程卡片資料，只返回JSON：
+{"name":"地點名稱","cat":"景點","desc":"一句話描述（繁體中文，20字內）","mustEat":false,"mustBuy":false,"mustPhoto":false,"duration":60}
+cat只能是：景點/餐廳/交通/住宿/購物/其他
+地點：${placeName||''} 地址：${address||''} 城市：${city||''}
+注意：餐廳/食肆/cafe/咖啡 → cat=餐廳，商場/藥妝/百貨 → cat=購物，神社/寺廟/博物館 → cat=景點`,
+      200
+    );
+    return JSON.parse(raw);
+  }catch{
+    return{name:placeName||'',cat:'景點',desc:'',mustEat:false,mustBuy:false,mustPhoto:false,duration:60};
+  }
+}
+
+/* Main: takes URL or place name → returns filled item data */
+async function importFromMaps(input,city){
+  const isUrl=input.includes('maps.google')||input.includes('goo.gl')||input.includes('maps.app');
+
+  let placeName=null,lat=null,lng=null,address=null;
+
+  if(isUrl){
+    const parsed=parseGoogleMapsUrl(input);
+    placeName=parsed.placeName;lat=parsed.lat;lng=parsed.lng;
+
+    if(lat&&lng){
+      const rev=await reverseGeocode(lat,lng);
+      if(rev){address=rev.address;if(!placeName)placeName=rev.name}
+    }
+    if(!placeName&&!address){
+      /* URL gave us nothing useful — try as search text */
+      placeName=input;
+    }
+  }else{
+    /* Plain place name — geocode it */
+    placeName=input;
+    const q=city?`${input}, ${city}`:input;
+    const geo=await geocodeNominatim(q);
+    if(geo){
+      const rev=await reverseGeocode(geo.lat,geo.lon);
+      if(rev)address=rev.address;
+    }
+  }
+
+  /* If we have a place name, use Nominatim to get address */
+  if(placeName&&!address){
+    const q=city?`${placeName}, ${city}`:placeName;
+    const geo=await geocodeNominatim(q);
+    if(geo){
+      const rev=await reverseGeocode(geo.lat,geo.lon);
+      if(rev)address=rev.address||rev.name;
+    }
+  }
+
+  /* Enrich with AI */
+  const enriched=await enrichPlaceWithAI(placeName,address,city);
+
+  return{
+    name:enriched.name||placeName||'',
+    location:address||placeName||'',
+    cat:enriched.cat||'景點',
+    desc:enriched.desc||'',
+    mustEat:!!enriched.mustEat,
+    mustBuy:!!enriched.mustBuy,
+    mustPhoto:!!enriched.mustPhoto,
+    duration:enriched.duration||60,
+    notes:'',time:'',travelTime:'',
+  };
+}
 
 /* ════════════════════════════════════════
    LOCATION PICKER — live Nominatim autocomplete
@@ -1208,16 +1454,19 @@ function LocationPicker({value,onChange,city}){
     return()=>document.removeEventListener('mousedown',handler);
   },[]);
 
+  const isGMapsUrl=v=>v.includes('maps.google')||v.includes('goo.gl/maps')||v.includes('maps.app.goo.gl');
+
   function onInput(e){
     const v=e.target.value;
-    setQuery(v);onChange(v); /* update immediately so parent has typed value */
+    setQuery(v);onChange(v);
     setOpen(true);
     clearTimeout(timerRef.current);
     if(v.length<2){setSuggestions([]);return}
+    /* If it's a Maps URL, don't search Nominatim — show Maps import button instead */
+    if(isGMapsUrl(v)){setSuggestions([]);return}
     timerRef.current=setTimeout(async()=>{
       setLoading(true);
       try{
-        /* Append city to improve relevance */
         const q=city?`${v} ${city}`:v;
         const d=await fetch(
           `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&addressdetails=1`,
@@ -1226,7 +1475,7 @@ function LocationPicker({value,onChange,city}){
         setSuggestions(d.slice(0,5));
       }catch{setSuggestions([])}
       setLoading(false);
-    },400); /* debounce 400ms */
+    },400);
   }
 
   function pick(s){
@@ -1294,10 +1543,81 @@ function ItemModal({trip,item,onSave,onClose}){
     notes:'',desc:'',travelTime:'',duration:60,
     mustEat:false,mustBuy:false,mustPhoto:false
   });
+  const[mapsInput,setMapsInput]=useState('');
+  const[mapsLoading,setMapsLoading]=useState(false);
+  const[mapsErr,setMapsErr]=useState('');
+  const[showMapsPanel,setShowMapsPanel]=useState(!item);
   const u=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const tog=k=>()=>setF(p=>({...p,[k]:!p[k]}));
+
+  async function handleMapsImport(){
+    if(!mapsInput.trim())return;
+    setMapsLoading(true);setMapsErr('');
+    try{
+      const result=await importFromMaps(mapsInput.trim(),trip.destination);
+      setF(p=>({...p,...result}));
+      setShowMapsPanel(false);
+      showToast('✓ 地點已匯入，請確認資料正確');
+    }catch(e){
+      setMapsErr('匯入失敗：'+e.message);
+    }
+    setMapsLoading(false);
+  }
+
+  async function handleClipboard(){
+    try{
+      const text=await navigator.clipboard.readText();
+      setMapsInput(text);
+    }catch{setMapsErr('請手動貼上連結')}
+  }
+
   return <Modal title={item?'編輯景點':'新增景點'} onClose={onClose}>
-    {!item&&<SmartInputPanel type="itinerary" onFill={d=>setF(p=>({...p,...d}))}/>}
+    {/* ── Google Maps import panel ── */}
+    {showMapsPanel&&<div style={{background:'#f0f4ff',border:'1.5px solid var(--indigo)',borderRadius:8,padding:'12px 14px',marginBottom:14}}>
+      <div style={{fontWeight:700,fontSize:13,color:'var(--indigo)',marginBottom:4,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span>📍 從 Google Maps 匯入</span>
+        <button onClick={()=>setShowMapsPanel(false)} style={{background:'none',border:'none',cursor:'pointer',fontSize:13,opacity:.4,padding:0}}>✕</button>
+      </div>
+      <div style={{fontSize:11,opacity:.6,marginBottom:9,lineHeight:1.6}}>
+        在 Google Maps 找到地點 → 點分享 → 複製連結 → 貼到下方<br/>
+        或直接輸入地點名稱（如：淺草寺、Tokyo Tower）
+      </div>
+      <div style={{display:'flex',gap:6}}>
+        <input
+          value={mapsInput}
+          onChange={e=>setMapsInput(e.target.value)}
+          onKeyDown={e=>e.key==='Enter'&&handleMapsImport()}
+          placeholder="貼上 Google Maps 連結或輸入地點名稱…"
+          style={{flex:1,padding:'9px 11px',border:'1.5px solid var(--indigo)',borderRadius:4,
+            fontFamily:'inherit',fontSize:12,background:'white',color:'var(--ink)',outline:'none',minWidth:0}}
+        />
+        <button onClick={handleClipboard}
+          style={{padding:'9px 10px',border:'1.5px solid var(--border-soft)',borderRadius:4,background:'var(--paper)',cursor:'pointer',fontSize:14,flexShrink:0}}>
+          📋
+        </button>
+      </div>
+      {mapsErr&&<div style={{fontSize:11,color:'#8b2a2a',marginTop:6}}>{mapsErr}</div>}
+      <button onClick={handleMapsImport} disabled={!mapsInput.trim()||mapsLoading}
+        style={{marginTop:9,width:'100%',padding:'9px',borderRadius:4,border:'none',
+          background:mapsInput.trim()&&!mapsLoading?'var(--indigo)':'var(--border)',
+          color:'white',fontFamily:'inherit',fontSize:13,fontWeight:600,cursor:'pointer',
+          display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+        {mapsLoading&&<span className="ai-spin"/>}
+        {mapsLoading?'AI 識別地點中…':'✨ 匯入並自動填寫'}
+      </button>
+      <div style={{marginTop:8,borderTop:'1px solid rgba(46,74,122,.15)',paddingTop:8}}>
+        <button onClick={()=>setShowMapsPanel(false)}
+          style={{background:'none',border:'none',cursor:'pointer',fontSize:11,opacity:.5,fontFamily:'inherit',width:'100%',textAlign:'center'}}>
+          略過，手動填寫 →
+        </button>
+      </div>
+    </div>}
+    {!showMapsPanel&&!item&&<button onClick={()=>setShowMapsPanel(true)}
+      style={{width:'100%',padding:'7px',marginBottom:12,border:'1.5px dashed var(--indigo)',borderRadius:6,
+        background:'rgba(46,74,122,.04)',color:'var(--indigo)',fontFamily:'inherit',fontSize:12,cursor:'pointer',fontWeight:500}}>
+      📍 改用 Google Maps 連結匯入
+    </button>}
+    {!item&&!showMapsPanel&&<SmartInputPanel type="itinerary" onFill={d=>setF(p=>({...p,...d}))}/>}
     <Field label="景點名稱"><input value={f.name} onChange={u('name')} placeholder="景點 / 餐廳 / 活動名稱"/></Field>
     <Field label="景點描述"><textarea value={f.desc||''} onChange={u('desc')} placeholder="簡短描述這個地方…" style={{minHeight:52}}/></Field>
     <Field label="類別">
@@ -1372,7 +1692,7 @@ function BookingsTab({trip,setTrip}){
   const[edit,setEdit]=useState(null);
   const[type,setType]=useState('flight');
   const[view,setView]=useState('list');/* list | timeline */
-  const[flightStatus,setFlightStatus]=useState({});
+
   const bookings=trip.bookings||[];
   const typeMap={'機票':'flight','酒店':'hotel','餐廳':'restaurant'};
   const filtered=filter==='全部'?bookings:bookings.filter(b=>b.type===typeMap[filter]);
@@ -1383,12 +1703,7 @@ function BookingsTab({trip,setTrip}){
     setTrip(t=>({...t,bookings:(t.bookings||[]).filter(x=>x.id!==id)}));
     showToast(`已刪除「${removed?.name}」`,()=>setTrip(t=>({...t,bookings:[...(t.bookings||[]),removed]})));
   }
-  function checkFlight(b){
-    if(b.flightNum){
-      window.open(`https://www.flightaware.com/live/flight/${b.flightNum}`,'_blank');
-      setFlightStatus(p=>({...p,[b.id]:'→ FlightAware'}));
-    }
-  }
+
 
   /* #9 timeline: group by date */
   const timelineData=useMemo(()=>{
@@ -1442,7 +1757,7 @@ function BookingsTab({trip,setTrip}){
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
             <div className="showa-title" style={{fontWeight:700,fontSize:13,color:'var(--ink)'}}>{b.type==='flight'?'✈️':b.type==='hotel'?'🏨':'🍽️'} {b.name}</div>
             <div style={{display:'flex',gap:4}}>
-              {b.type==='flight'&&b.flightNum&&<button className="btn btn-sm" onClick={e=>{e.stopPropagation();checkFlight(b)}}>{flightStatus[b.id]||'查狀態'}</button>}
+  
               <button onClick={e=>{e.stopPropagation();del(b.id)}} style={{background:'none',border:'none',cursor:'pointer',opacity:.35,fontSize:13}}>✕</button>
             </div>
           </div>
@@ -1572,13 +1887,25 @@ function exportToCSV(trip){
     rows.push([e.date||'',e.cat||'',e.name||'',e.amount||'',e.currency||'',e.notes||'']);
   });
   const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const bom='\uFEFF';// UTF-8 BOM for Excel/Sheets compatibility
-  const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`${trip.name}-消費記錄.csv`;
-  a.click();
-  showToast('✓ CSV 已下載，可直接匯入 Google Sheets');
+  const bom='\uFEFF';
+  /* Use data URI — works everywhere including iframes and GitHub Pages */
+  try{
+    const blob=new Blob([bom+csv],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=`${trip.name}-消費記錄.csv`;
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);document.body.removeChild(a)},200);
+    showToast('✓ CSV 已下載！在 Google Sheets 選擇「檔案→匯入」開啟');
+  }catch(e){
+    /* Fallback: data URI (always works) */
+    const dataUri='data:text/csv;charset=utf-8,'+encodeURIComponent(bom+csv);
+    const a=document.createElement('a');
+    a.href=dataUri;a.download=`${trip.name}-消費記錄.csv`;
+    document.body.appendChild(a);a.click();
+    document.body.removeChild(a);
+    showToast('✓ CSV 已下載！在 Google Sheets 選擇「檔案→匯入」開啟');
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -1700,7 +2027,6 @@ function ExpenseForm({trip,onSave,onClose}){
   const[f,setF]=useState({name:'',amount:'',currency:trip.currency||'HKD',cat:'餐飲',date:new Date().toISOString().slice(0,10)});
   const u=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return <>
-    <SmartInputPanel type="expense" onFill={d=>setF(p=>({...p,...d}))}/>
     <Field label="消費名稱"><input value={f.name} onChange={u('name')} placeholder="例：拉麵午餐"/></Field>
     
       <Field label="金額"><input type="number" value={f.amount} onChange={u('amount')}/></Field>
@@ -1975,75 +2301,6 @@ function PrepTab({trip,setTrip,allTrips}){
 /* ═══════════════════════════════════════════════
    TAB: JOURNAL — #6 new tab
 ═══════════════════════════════════════════════ */
-function JournalTab({trip,setTrip}){
-  const journal=trip.journal||{};
-  const days=trip.days||[];
-  const imgRef=useRef();
-  const[uploadingDay,setUploadingDay]=useState(null);
-
-  function updateNote(key,val){setTrip(t=>({...t,journal:{...(t.journal||{}),[key]:val}}))}
-  function getPhotos(key){try{return JSON.parse(localStorage.getItem('jphoto-'+key))||[]}catch{return[]}}
-  function addPhoto(key,dataUrl){
-    const photos=[...getPhotos(key),{id:uid(),url:dataUrl,ts:new Date().toISOString()}];
-    try{localStorage.setItem('jphoto-'+key,JSON.stringify(photos))}catch(e){showToast('圖片儲存失敗，空間不足')}
-    setTrip(t=>({...t,_photoTs:Date.now()}));/* trigger re-render */
-  }
-  function delPhoto(key,id){
-    const photos=getPhotos(key).filter(p=>p.id!==id);
-    localStorage.setItem('jphoto-'+key,JSON.stringify(photos));
-    setTrip(t=>({...t,_photoTs:Date.now()}));
-  }
-  function handleFileInput(e,key){
-    const file=e.target.files[0];if(!file)return;
-    const r=new FileReader();
-    r.onload=ev=>{addPhoto(key,ev.target.result);setUploadingDay(null)};
-    r.readAsDataURL(file);
-    e.target.value='';
-  }
-
-  return <div style={{padding:'14px 14px 0'}}>
-    <div style={{fontSize:12,opacity:.5,marginBottom:12,lineHeight:1.6}}>✍️ 每日旅遊日記 — 文字 + 相片</div>
-    <input ref={imgRef} type="file" accept="image/*" style={{display:'none'}}
-      onChange={e=>uploadingDay&&handleFileInput(e,uploadingDay)}/>
-    {Array.from({length:trip.duration||1},(_,i)=>{
-      const date=addDays(trip.startDate,i);
-      const city=days[i]?.city||trip.destination;
-      const key=date;
-      const dayItems=(days[i]?.items||[]).map(it=>it.name).join('、');
-      const photos=getPhotos(key);
-      return <div key={date} className="journal-day">
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:8}}>
-          <div>
-            <div className="showa-title" style={{fontSize:13,fontWeight:700,color:'var(--ink)'}}>Day {i+1} — {city}</div>
-            <div style={{fontSize:10,opacity:.45,marginTop:1}}>{date}</div>
-          </div>
-          <button className="btn btn-sm" style={{fontSize:10}}
-            onClick={()=>{setUploadingDay(key);setTimeout(()=>imgRef.current?.click(),50)}}>
-            📷 加相片
-          </button>
-        </div>
-        {/* Photo strip */}
-        {photos.length>0&&<div style={{display:'flex',gap:7,marginBottom:10,overflowX:'auto',paddingBottom:4}}>
-          {photos.map(p=>(
-            <div key={p.id} style={{position:'relative',flex:'0 0 88px',height:88,borderRadius:4,overflow:'hidden',border:'1.5px solid var(--border-soft)'}}>
-              <img src={p.url} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-              <button onClick={()=>delPhoto(key,p.id)}
-                style={{position:'absolute',top:2,right:2,width:18,height:18,borderRadius:'50%',
-                  background:'rgba(0,0,0,.55)',color:'white',border:'none',cursor:'pointer',
-                  fontSize:10,display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
-            </div>
-          ))}
-        </div>}
-        <textarea className="journal-textarea" value={journal[key]||''} onChange={e=>updateNote(key,e.target.value)}
-          placeholder={`記錄 Day ${i+1} 的所見所聞…`}/>
-        <div style={{display:'flex',justifyContent:'space-between',marginTop:4}}>
-          {dayItems&&<div style={{fontSize:10,opacity:.3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:200}}>📍{dayItems}</div>}
-          <span style={{fontSize:10,opacity:.3}}>{(journal[key]||'').length} 字</span>
-        </div>
-      </div>
-    })}
-  </div>
-}
 
 
 
@@ -2174,23 +2431,17 @@ function ApiKeyField({storageKey,placeholder}){
 function SettingsTab({trip,setTrip,onDelete}){
   const[form,setForm]=useState({...trip});
   const[showDel,setShowDel]=useState(false);
-  const[shareCode,setShareCode]=useState('');
-  const[copied,setCopied]=useState(false);
+
   const u=k=>e=>setForm(p=>({...p,[k]:e.target.value}));
+  /* Re-sync form whenever the trip changes (e.g. switching between trips) */
+  useEffect(()=>setForm({...trip}),[trip.id]);
   function save(){
     // Never save API keys inside trip data — they stay in localStorage under their own keys
     const{gmapsKey,...safeForm}=form;
     setTrip(t=>({...t,...safeForm}));
     showToast('✓ 設定已儲存');
   }
-  function generateShare(){
-    /* #18 strip photos before encoding */
-    const stripped={...trip};
-    stripped.shopping=(trip.shopping||[]).map(({id,...rest})=>({id,...rest}));
-    const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(stripped))));
-    setShareCode(`${location.href.split('?')[0]}?trip=${encoded}`);
-  }
-  function copyShare(){navigator.clipboard.writeText(shareCode).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),2000)})}
+
   function exportTxt(){
     const c=`旅行計劃：${trip.name}\n目的地：${trip.destination}\n日期：${trip.startDate}〜${addDays(trip.startDate,(trip.duration||1)-1)}\n\n${'='.repeat(30)}\n行程\n${'='.repeat(30)}\n${(trip.days||[]).map((d,i)=>`\nDay ${i+1} — ${d.city}\n${(d.items||[]).map(it=>`  ${it.time||''} ${it.name}${it.location?' @ '+it.location:''}${it.duration?' ('+it.duration+'分)':''}`).join('\n')}`).join('')}\n\n${'='.repeat(30)}\n預約\n${'='.repeat(30)}\n${(trip.bookings||[]).map(b=>`• ${b.name}${b.type==='flight'?' '+b.flightNum:''}`).join('\n')}\n\n${'='.repeat(30)}\n消費記錄\n${'='.repeat(30)}\n${(trip.expenses||[]).map(e=>`• ${e.name}: ${e.currency} ${e.amount}`).join('\n')}\n\n${'='.repeat(30)}\n日記\n${'='.repeat(30)}\n${Object.entries(trip.journal||{}).map(([k,v])=>`\n${k}\n${v}`).join('\n')}`;
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/plain;charset=utf-8'}));a.download=`${trip.name}-行程摘要.txt`;a.click();
@@ -2216,13 +2467,7 @@ function SettingsTab({trip,setTrip,onDelete}){
         ))}
       </div>
     </Field>
-    <Field label="天氣特效">
-      <div style={{display:'flex',gap:5,flexWrap:'wrap',marginTop:3}}>
-        {[['none','關閉'],['snow','❄️雪'],['sakura','🌸櫻'],['autumn','🍁楓'],['rain','🌧️雨']].map(([v,l])=>(
-          <button key={v} className={`pill ${form.weatherEffect===v?'active':''}`} onClick={()=>setForm(p=>({...p,weatherEffect:v}))} style={{fontSize:11}}>{l}</button>
-        ))}
-      </div>
-    </Field>
+
     <div className="showa-divider" style={{margin:'14px 0 12px'}}/>
 
     {/* ── Language ── */}
@@ -2262,54 +2507,15 @@ function SettingsTab({trip,setTrip,onDelete}){
         </div>
       </div>
 
-      <div style={{height:1,background:'var(--border-soft)',margin:'12px 0'}}/>
-
-      {/* Google Maps Key */}
-      <div style={{background:'#f0f7f0',border:'1.5px solid var(--moss)',borderRadius:4,padding:'10px 12px',marginBottom:12,fontSize:11,color:'#1a4a1a',lineHeight:1.8}}>
-        🗺️ <b>Google Maps 完全免費</b><br/>
-        · 導航連結、停車場、加油站搜尋 → 免費超連結，無需 Key<br/>
-        · 路線時間估算 → 已改用 <b>OpenStreetMap 免費計算</b>，無需 Key<br/>
-        · Google Maps API Key 已從本應用完全移除 ✓
-      </div>
-
-      <div style={{height:1,background:'var(--border-soft)',margin:'12px 0'}}/>
-
-      {/* Security guide */}
-      <div style={{background:'var(--paper)',border:'1px solid var(--border-soft)',borderRadius:4,padding:'10px 12px'}}>
-        <div style={{fontWeight:700,fontSize:11,marginBottom:7,color:'var(--ink-soft)'}}>🛡️ 如何保護你的 API Key</div>
-        {[
-          ['1','限制 HTTP 參照者','在 Google Cloud 控制台，限制 Key 只能從你的網域使用，即使 Key 洩漏也無法被外部呼叫'],
-          ['2','設定每月用量上限','Anthropic：設定 Monthly Spend Limit；Google：設定每日 API 配額，防止無限使用'],
-          ['3','定期更換 Key','每隔 3-6 個月重新生成 API Key，舊 Key 立即失效'],
-          ['4','不要截圖或複製到聊天','Key 視為密碼，不要在任何對話、電郵或截圖中顯示完整 Key'],
-          ['5','本應用不上傳 Key','本應用所有 Key 只存於你的裝置 localStorage，從不傳送至任何第三方伺服器'],
-        ].map(([n,title,desc])=>(
-          <div key={n} style={{display:'flex',gap:9,marginBottom:8,alignItems:'flex-start'}}>
-            <div style={{width:18,height:18,borderRadius:'50%',background:'var(--indigo)',color:'white',fontSize:10,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>{n}</div>
-            <div>
-              <div style={{fontSize:11,fontWeight:600,color:'var(--ink-soft)'}}>{title}</div>
-              <div style={{fontSize:10,opacity:.5,lineHeight:1.6,marginTop:1}}>{desc}</div>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
     <div style={{display:'flex',gap:7}}>
       <button className="btn btn-primary" style={{flex:1}} onClick={save}>儲存設定</button>
       <button className="btn btn-indigo" onClick={exportTxt}>📄 匯出</button>
     </div>
     <div className="showa-divider" style={{margin:'12px 0'}}/>
-    <div className="section-title">分享行程</div>
-    <div style={{fontSize:11,opacity:.5,marginBottom:8}}>分享時自動移除圖片以縮短連結長度</div>
-    {/* Friend key sharing */}
+    <div className="section-title">共享與備份</div>
     <FriendKeyShare/>
-    {/* Backup */}
     <BackupPanel trips={[trip]} onRestore={()=>{}}/>
-    <div style={{display:'flex',gap:7,marginBottom:shareCode?8:0}}>
-      <button className="btn" style={{flex:1,fontSize:12}} onClick={generateShare}>🔗 生成連結</button>
-      {shareCode&&<button className="btn btn-accent btn-sm" onClick={copyShare}>{copied?'✓ 已複製':'複製'}</button>}
-    </div>
-    {shareCode&&<div className="share-box" style={{fontSize:10}}>{shareCode.slice(0,100)}…</div>}
     <div className="showa-divider" style={{margin:'12px 0'}}/>
     <button className="btn btn-danger" style={{width:'100%'}} onClick={()=>setShowDel(true)}>🗑 刪除此行程</button>
     {showDel&&<Modal title="確認刪除" onClose={()=>setShowDel(false)}>
@@ -2323,8 +2529,8 @@ function SettingsTab({trip,setTrip,onDelete}){
    TRIP DETAIL + HOME
 ═══════════════════════════════════════════════ */
 /* TABS keys are internal; labels come from LANGS */
-const TAB_KEYS=['行程','預約','記帳','購物','準備','日記','設定'];
-const TAB_EMOJI={行程:'⛩',預約:'✈️',記帳:'💴',購物:'🛍',準備:'🧳',日記:'📖',設定:'⚙️'};
+const TAB_KEYS=['行程','預約','記帳','購物','準備','設定'];
+const TAB_EMOJI={行程:'⛩',預約:'✈️',記帳:'💴',購物:'🛍',準備:'🧳',設定:'⚙️'};
 
 
 /* ════════════════════════════════════════
@@ -2463,7 +2669,7 @@ function StickerLayer({tripId,tab}){
   return <>
     {ReactDOM.createPortal(overlay,document.body)}
     <button onClick={e=>{e.stopPropagation();setShowPicker(p=>!p);setSelected(null)}}
-      style={{position:'fixed',bottom:80,right:'calc(50% - 240px + 68px)',
+      style={{position:'fixed',bottom:128,right:'calc(50% - 240px + 14px)',
         width:42,height:42,borderRadius:'50%',
         background:showPicker?'var(--ink)':'var(--rose)',
         border:'2px solid var(--ink)',color:'var(--washi)',
@@ -2518,7 +2724,6 @@ function TripDetail({trip,updateTrip,onBack,onDelete,allTrips}){
     {tab==='記帳'&&<BudgetTab trip={trip} setTrip={st}/>}
     {tab==='購物'&&<ShoppingTab trip={trip} setTrip={st}/>}
     {tab==='準備'&&<PrepTab trip={trip} setTrip={st} allTrips={allTrips}/>}
-    {tab==='日記'&&<JournalTab trip={trip} setTrip={st}/>}
     {tab==='設定'&&<SettingsTab trip={trip} setTrip={st} onDelete={onDelete}/>}
     <div style={{height:96}}/>
     {/* Sticker layer — sits over full trip page */}
@@ -2527,12 +2732,12 @@ function TripDetail({trip,updateTrip,onBack,onDelete,allTrips}){
 }
 
 /* #17 Home trip card — next activity */
-function TripCard({trip,onClick}){
+function TripCard({trip,onClick,onEdit,onDelete}){
   const days=daysUntil(trip.startDate);
   const color=trip.color||'#2d2418';
   const prepDone=(trip.prep||[]).filter(p=>p.done).length;
   const prepTotal=(trip.prep||[]).length;
-  /* find next upcoming itinerary item */
+  const[showMenu,setShowMenu]=useState(false);
   const nextActivity=useMemo(()=>{
     const now=new Date();
     const tripDay=Math.max(0,Math.floor((now-new Date(trip.startDate))/86400000));
@@ -2542,19 +2747,29 @@ function TripCard({trip,onClick}){
     return (dayData.items||[]).find(it=>{const t=timeToMins(it.time);return t!==null&&t>nowMins});
   },[trip]);
   const isActive=days<=0&&days>-(trip.duration||1);
-  return <div className="card trip-card animate-in" onClick={onClick} style={{marginBottom:11}}>
+  return <div className="card trip-card animate-in" style={{marginBottom:11,position:'relative'}}>
     <div style={{position:'absolute',top:0,left:0,right:0,height:4,background:color,borderRadius:'3px 3px 0 0'}}/>
-    <div style={{paddingTop:6}}>
+    {/* Main card area — tappable to open trip */}
+    <div style={{paddingTop:6}} onClick={()=>{setShowMenu(false);onClick()}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
-        <div>
+        <div style={{flex:1,minWidth:0}}>
           <div className="showa-title" style={{fontSize:15,fontWeight:700,color,letterSpacing:'.08em'}}>{trip.name}</div>
           <div style={{fontSize:11,opacity:.5,marginTop:2}}>📍 {trip.destination}</div>
         </div>
-        <span className="stamp" style={{color,fontSize:10}}>
-          {days>0?`${days}日後`:days===0?'今日出發':'旅途中'}
-        </span>
+        <div style={{display:'flex',alignItems:'center',gap:6,flexShrink:0}}>
+          <span className="stamp" style={{color,fontSize:10}}>
+            {days>0?`${days}日後`:days===0?'今日出發':'旅途中'}
+          </span>
+          {/* ⋯ menu button */}
+          <button
+            onClick={e=>{e.stopPropagation();setShowMenu(m=>!m)}}
+            style={{background:'none',border:'1px solid var(--border-soft)',borderRadius:4,
+              width:28,height:28,cursor:'pointer',fontSize:14,color:'var(--ink-soft)',
+              display:'flex',alignItems:'center',justifyContent:'center',opacity:.6,flexShrink:0}}>
+            ⋯
+          </button>
+        </div>
       </div>
-      {/* #17 next activity */}
       {isActive&&nextActivity&&(
         <div style={{marginTop:8,background:`${color}14`,border:`1px solid ${color}33`,borderRadius:3,padding:'5px 9px',fontSize:11}}>
           <span style={{opacity:.55}}>下一站：</span>
@@ -2573,7 +2788,105 @@ function TripCard({trip,onClick}){
         <div className="progress-bar"><div className="progress-fill" style={{width:`${prepTotal?prepDone/prepTotal*100:0}%`,background:color}}/></div>
       </div>}
     </div>
+    {/* Dropdown menu */}
+    {showMenu&&<div onClick={e=>e.stopPropagation()}
+      style={{position:'absolute',top:32,right:10,
+        background:'var(--paper)',border:'1.5px solid var(--border)',borderRadius:6,
+        boxShadow:'3px 3px 0 var(--border)',zIndex:200,overflow:'hidden',minWidth:130}}>
+      <button onClick={()=>{setShowMenu(false);onEdit()}}
+        style={{display:'block',width:'100%',padding:'10px 14px',background:'none',border:'none',
+          cursor:'pointer',textAlign:'left',fontSize:13,fontFamily:'inherit',color:'var(--ink-soft)',
+          borderBottom:'1px solid var(--border-soft)'}}>
+        ✏️ 編輯行程資料
+      </button>
+      <button onClick={()=>{setShowMenu(false);if(window.confirm(`確定刪除「${trip.name}」？`))onDelete()}}
+        style={{display:'block',width:'100%',padding:'10px 14px',background:'none',border:'none',
+          cursor:'pointer',textAlign:'left',fontSize:13,fontFamily:'inherit',color:'#8b2a2a'}}>
+        🗑️ 刪除行程
+      </button>
+    </div>}
   </div>
+}
+
+
+/* ════════════════════════════════════════
+   DESTINATION PICKER
+   Popular destinations + free text fallback
+════════════════════════════════════════ */
+function DestinationPicker({value,onChange}){
+  const[showPicker,setShowPicker]=useState(!value);
+  const[query,setQuery]=useState(value||'');
+
+  useEffect(()=>{setQuery(value||'')},[value]);
+
+  function pick(city){
+    setQuery(city);onChange(city);setShowPicker(false);
+  }
+
+  return <div>
+    {/* Text input — always visible */}
+    <div style={{position:'relative'}}>
+      <input
+        value={query}
+        onChange={e=>{setQuery(e.target.value);onChange(e.target.value)}}
+        onFocus={()=>setShowPicker(true)}
+        placeholder="輸入或選擇目的地城市"
+        style={{width:'100%',padding:'10px 36px 10px 11px',border:'1.5px solid var(--border-soft)',
+          borderRadius:3,fontFamily:'inherit',fontSize:13,background:'var(--paper)',color:'var(--ink)',
+          outline:'none',boxSizing:'border-box'}}
+      />
+      {query&&<span onClick={()=>{setQuery('');onChange('');setShowPicker(true)}}
+        style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',
+          cursor:'pointer',fontSize:14,opacity:.35,lineHeight:1}}>✕</span>}
+    </div>
+
+    {/* Popular city picker */}
+    {showPicker&&<div style={{marginTop:6,background:'var(--washi2)',border:'1.5px solid var(--border-soft)',
+      borderRadius:6,padding:'10px 10px 6px',maxHeight:240,overflowY:'auto'}}>
+      <div style={{fontSize:10,opacity:.45,marginBottom:8,letterSpacing:'.06em'}}>熱門目的地（點擊選取）</div>
+      {POPULAR_DESTS.map(group=>(
+        <div key={group.region} style={{marginBottom:9}}>
+          <div style={{fontSize:10,fontWeight:700,opacity:.5,marginBottom:5}}>{group.region}</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
+            {group.cities.map(city=>(
+              <button key={city} onClick={()=>pick(city)}
+                style={{padding:'4px 10px',borderRadius:20,border:'1.5px solid var(--border-soft)',
+                  background:value===city?'var(--persimmon)':'var(--paper)',
+                  color:value===city?'white':'var(--ink-soft)',
+                  fontFamily:'inherit',fontSize:12,cursor:'pointer',
+                  fontWeight:value===city?700:400,transition:'all .15s'}}>
+                {city}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div style={{borderTop:'1px solid var(--border-soft)',paddingTop:7,marginTop:3}}>
+        <div style={{fontSize:10,opacity:.4}}>找不到城市？直接在上方輸入即可</div>
+      </div>
+    </div>}
+  </div>
+}
+
+
+/* ════════════════════════════════════════
+   QUICK EDIT MODAL — edit from home screen
+════════════════════════════════════════ */
+function QuickEditModal({trip,onSave,onClose}){
+  const[name,setName]=useState(trip.name||'');
+  const[dest,setDest]=useState(trip.destination||'');
+  return <Modal title="編輯行程" onClose={onClose}>
+    <Field label="旅行名稱">
+      <input value={name} onChange={e=>setName(e.target.value)} placeholder="旅行名稱"/>
+    </Field>
+    <Field label="目的地">
+      <DestinationPicker value={dest} onChange={setDest}/>
+    </Field>
+    <div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:4}}>
+      <button className="btn" onClick={onClose}>取消</button>
+      <button className="btn btn-primary" onClick={()=>{if(name.trim()&&dest.trim())onSave(name.trim(),dest.trim())}}>儲存</button>
+    </div>
+  </Modal>
 }
 
 function NewTripModal({onSave,onClose}){
@@ -2586,7 +2899,9 @@ function NewTripModal({onSave,onClose}){
   }
   return <Modal title="新建旅行計劃" onClose={onClose}>
     <Field label="旅行名稱"><input value={f.name} onChange={u('name')} placeholder="例：東京春日之旅"/></Field>
-    <Field label="目的地"><input value={f.destination} onChange={u('destination')} placeholder="例：東京"/></Field>
+    <Field label="目的地">
+      <DestinationPicker value={f.destination} onChange={v=>setF(p=>({...p,destination:v}))}/>
+    </Field>
     
       <Field label="出發日期"><input type="date" value={f.startDate} onChange={u('startDate')}/></Field>
       <Field label="天數"><input type="number" min="1" max="60" value={f.duration} onChange={u('duration')}/></Field>
@@ -2616,6 +2931,7 @@ function App(){
   const[activeId,setActiveId]=useState(null);
   const[showNew,setShowNew]=useState(false);
   const[showBackup,setShowBackup]=useState(false);
+  const[editingTrip,setEditingTrip]=useState(null);
   const[sharedTrip,setSharedTrip]=useState(null);
   const curLang=currentLang; /* read global */
   useEffect(()=>{const t=loadSharedTrip();if(t)setSharedTrip(t)},[]);
@@ -2651,7 +2967,21 @@ function App(){
     </div>
     <div style={{padding:'12px 12px 0'}}>
       {trips.length===0&&<div className="empty-state"><div className="emoji">🌏</div><div style={{fontSize:13,fontWeight:500}}>還沒有旅行計劃</div><div style={{fontSize:11,marginTop:3}}>點擊 ＋ 開始規劃你的旅程</div></div>}
-      {[...trips].sort((a,b)=>new Date(b.startDate)-new Date(a.startDate)).map(t=><TripCard key={t.id} trip={t} onClick={()=>setActiveId(t.id)}/>)}
+      {[...trips].sort((a,b)=>new Date(b.startDate)-new Date(a.startDate)).map(t=>(
+        <TripCard key={t.id} trip={t}
+          onClick={()=>setActiveId(t.id)}
+          onEdit={()=>setEditingTrip(t)}
+          onDelete={()=>{setTrips(ts=>ts.filter(x=>x.id!==t.id));showToast(`已刪除「${t.name}」`,()=>setTrips(ts=>[t,...ts]))}}
+        />
+      ))}
+      {editingTrip&&<QuickEditModal
+        trip={editingTrip}
+        onSave={(name,dest)=>{
+          setTrips(ts=>ts.map(x=>x.id===editingTrip.id?{...x,name,destination:dest,days:(x.days||[]).map(d=>({...d,city:d.city===x.destination?dest:d.city}))}:x));
+          setEditingTrip(null);showToast('✓ 已儲存');
+        }}
+        onClose={()=>setEditingTrip(null)}
+      />}
     </div>
     <button className="fab" onClick={()=>setShowNew(true)}>＋</button>
     {showBackup&&<Modal title="☁️ 備份與還原" onClose={()=>setShowBackup(false)}>
